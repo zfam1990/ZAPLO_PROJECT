@@ -1,0 +1,19 @@
+projection;
+use draft;
+
+define behavior for ZC_OBJECT_D alias Object_D
+{
+  use create;
+  use update;
+  use delete;
+
+  use association _Subobject { create; with draft; }
+}
+
+define behavior for ZC_SUBOBJECT_D alias Subobject_D
+{
+  use update;
+  use delete;
+
+  use association _Object { with draft; }
+}

@@ -1,0 +1,86 @@
+managed;
+with draft;
+
+define behavior for ZI_OBJECT alias Object
+implementation in class zbp_i_object unique
+persistent table zobject
+draft table zobject_dd
+lock master
+total etag LastChangedAt
+//authorization master ( instance )
+etag master LocalLastChangedAt
+{
+
+  field ( numbering : managed, readonly ) ObjectUuid;
+  field ( mandatory ) Object;
+  field ( mandatory ) TransportRequest;
+  field ( mandatory ) PackageObj;
+
+  create;
+  update;
+  delete;
+
+
+  mapping for ZOBJECT
+  {
+    ObjectUuid = object_uuid;
+    Object = object;
+    ObjectText = object_text;
+    TransportRequest = transport_request;
+    PackageObj = package_obj;
+    LocalCreatedBy = local_created_by;
+    LocalCreatedAt = local_created_at;
+    LocalLastChangedBy = local_last_changed_by;
+    LocalLastChangedAt = local_last_changed_at;
+    LastChangedAt = last_changed_at;
+  }
+
+  determination CreateApplObject on modify
+  { create; }
+
+  draft determine action Prepare
+  {
+    determination Subobject ~ AddSubobject;
+  }
+
+  association _Subobject { create; with draft; }
+}
+
+define behavior for ZI_SUBOBJECT alias Subobject
+implementation in class zbp_i_subobject unique
+persistent table zsubobject
+draft table zsuboobject_dd
+lock dependent by _Object
+//authorization dependent by <association>
+etag master LocalLastChangedAt
+{
+
+  field ( numbering : managed, readonly ) SubobjectUuid;
+  field ( readonly ) ObjectUuid;
+  field ( mandatory ) Subobject;
+  field ( mandatory ) TransportRequest;
+
+
+  update;
+  delete;
+
+  determination FillRequest on modify
+  { create; }
+  determination AddSubobject on save
+  { create; }
+
+
+
+  mapping for ZSUBOBJECT
+  {
+    SubobjectUuid = subobject_uuid;
+    ObjectUuid = object_uuid;
+    Subobject = subobject;
+    SubobjectText = subobject_text;
+    TransportRequest = transport_request;
+    LocalLastChangedAt = local_last_changed_at;
+
+  }
+  association _Object { with draft; }
+
+}

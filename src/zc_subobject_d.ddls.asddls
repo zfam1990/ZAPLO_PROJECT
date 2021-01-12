@@ -35,6 +35,11 @@ as projection on ZI_SUBOBJECT {
              identification: [ { position: 30, label: 'Transport Request' } ],
              selectionField: [ { position: 30 } ] }
       TransportRequest,
+      @UI: {
+              lineItem:       [ { position: 40, label: 'Package', importance: #HIGH } ],
+              identification: [ { position: 40, label: 'Package' } ],
+              selectionField: [ { position: 40 } ] }
+      _Object.PackageObj,      
       @UI.hidden: true
       LocalLastChangedAt
       ,

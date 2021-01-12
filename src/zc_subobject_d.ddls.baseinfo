@@ -3,6 +3,7 @@
 {
 "FROM":
 [
+"ZI_OBJECT",
 "ZI_SUBOBJECT"
 ],
 "ASSOCIATED":

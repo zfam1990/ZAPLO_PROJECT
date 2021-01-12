@@ -30,6 +30,10 @@ define root view entity ZC_OBJECT
                   identification: [ { position: 10, label: 'Object' } ],
                   selectionField: [ { position: 10 } ] }
       @Search.defaultSearchElement: true
+      @Consumption.valueHelpDefinition: [{ entity : {name: 'ZCE_OBJECT_VH', element: 'ABAPObject'  },
+      additionalBinding: [{ localElement: 'PackageObj', element: 'package_obj', usage: #RESULT },
+      { localElement: 'ObjectText', element: 'object_text', usage: #RESULT },
+      { localElement: 'Object', element: 'object', usage: #RESULT }]}]
       Object,
       @UI: {
                lineItem:       [ { position: 20,label: 'Object Text', importance: #HIGH } ],

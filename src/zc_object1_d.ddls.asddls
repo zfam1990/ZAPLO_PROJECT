@@ -1,4 +1,4 @@
-@EndUserText.label: 'Projection view for Object draft'
+@EndUserText.label: 'Projection view for Object'
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 
 @UI: {
@@ -7,8 +7,10 @@
 @UI.presentationVariant: [{sortOrder: [{by: 'Object', direction: #ASC }]}]
 
 @Search.searchable: true
-define root view entity ZC_OBJECT_D 
-as projection on ZI_OBJECT {
+define root view entity ZC_OBJECT1_D
+  as projection on ZI_OBJECT1
+{
+
       @UI.facet: [ {             id:              'Object',
                                  purpose:         #STANDARD,
                                  type:            #IDENTIFICATION_REFERENCE,
@@ -21,18 +23,12 @@ as projection on ZI_OBJECT {
                                  position:        20,
                                  targetElement:   '_Subobject'}]
 
-      @UI.hidden: true
-  key ObjectUuid,
       @UI: {
-                  lineItem:       [ { position: 10, label: 'Object', importance: #HIGH } ],
-                  identification: [ { position: 10, label: 'Object' } ],
-                  selectionField: [ { position: 10 } ] }
+              lineItem:       [ { position: 10, label: 'Object', importance: #HIGH } ],
+              identification: [ { position: 10, label: 'Object' } ],
+              selectionField: [ { position: 10 } ] }
       @Search.defaultSearchElement: true
-     @Consumption.valueHelpDefinition: [{ entity : {name: 'ZCE_OBJECT_VH', element: 'ABAPObject'  },
-      additionalBinding: [{ localElement: 'PackageObj', element: 'package_obj', usage: #RESULT },
-      { localElement: 'ObjectText', element: 'object_text', usage: #RESULT },
-      { localElement: 'Object', element: 'object', usage: #RESULT }]}]
-      Object,
+  key Object,
       @UI: {
                lineItem:       [ { position: 20,label: 'Object Text', importance: #HIGH } ],
                identification: [ { position: 20, label: 'Object Text' } ],
@@ -41,17 +37,16 @@ as projection on ZI_OBJECT {
       @UI: {
              lineItem:       [ { position: 30, label: 'Transport Request', importance: #HIGH } ],
              identification: [ { position: 30, label: 'Transport Request' } ],
-             selectionField: [ { position: 30 } ] }
+             selectionField: [ { position: 30 } ] }      
       TransportRequest,
       @UI: {
               lineItem:       [ { position: 40, label: 'Package', importance: #HIGH } ],
               identification: [ { position: 40, label: 'Package' } ],
-              selectionField: [ { position: 40 } ] }
+              selectionField: [ { position: 40 } ] }      
       PackageObj,
       @UI.hidden: true
       LocalLastChangedAt
       ,
       /* Associations */
-
-      _Subobject : redirected to composition child ZC_SUBOBJECT_D
+      _Subobject: redirected to composition child ZC_SUBOBJECT1_D
 }

@@ -1,0 +1,70 @@
+managed; // implementation in class zbp_i_object1 unique;
+with draft;
+
+define behavior for ZI_OBJECT1 alias Object
+implementation in class zbp_i_object1 unique
+persistent table ZOBJECT1
+draft table zobject1_dd
+lock master
+total etag LastChangedAt
+//authorization master ( instance )
+etag master LocalLastChangedAt
+{
+
+  field ( mandatory ) Object;
+  field ( mandatory ) TransportRequest;
+  field ( mandatory ) PackageObj;
+
+  create;
+  update;
+  delete;
+
+  association _Subobject { create; with draft;}
+
+  mapping for ZOBJECT1
+  {
+
+    Object = object;
+    ObjectText = object_text;
+    TransportRequest = transport_request;
+    PackageObj = package_obj;
+    LocalCreatedBy = local_created_by;
+    LocalCreatedAt = local_created_at;
+    LocalLastChangedBy = local_last_changed_by;
+    LocalLastChangedAt = local_last_changed_at;
+    LastChangedAt = last_changed_at;
+  }
+}
+
+define behavior for ZI_SUBOBJECT1 alias Subobject
+implementation in class zbp_i_subobject1 unique
+persistent table ZSUBOBJECT1
+draft table zsuboobject1_dd
+lock dependent by _Object
+//authorization dependent by <association>
+etag master LocalLastChangedAt
+{
+
+  field ( readonly ) object;
+  field ( mandatory ) Subobject;
+  field ( mandatory ) TransportRequest;
+
+  determination FillRequest on modify
+  { create; }
+
+  update;
+  delete;
+
+    mapping for ZSUBOBJECT1
+  {
+
+    Subobject = subobject;
+    Object = object;
+    SubobjectText = subobject_text;
+    TransportRequest = transport_request;
+    LocalLastChangedAt = local_last_changed_at;
+
+  }
+
+  association _Object{with draft;}
+}

@@ -7,8 +7,8 @@
 @UI.presentationVariant: [{sortOrder: [{by: 'Subobject', direction: #ASC }]}]
 
 @Search.searchable: true
-define view entity ZC_SUBOBJECT
-  as projection on ZI_SUBOBJECT
+define view entity ZC_SUBOBJECT1
+  as projection on ZI_SUBOBJECT1
 {
 
       @UI.facet: [ { id:            'Subobject',
@@ -16,17 +16,14 @@ define view entity ZC_SUBOBJECT
                      type:          #IDENTIFICATION_REFERENCE,
                      label:         'Application Log SUbobject',
                      position:      10 }]
-
-      @UI.hidden: true
-  key SubobjectUuid,
-      @UI.hidden: true
-      ObjectUuid,
       @UI: {
                         lineItem:       [ { position: 10, label: 'Subobject', importance: #HIGH } ],
                         identification: [ { position: 10, label: 'Subobject' } ],
                         selectionField: [ { position: 10 } ] }
       @Search.defaultSearchElement: true
-      Subobject,
+  key Subobject,
+      @UI.hidden: true
+  key Object,
       @UI: {
                lineItem:       [ { position: 20,label: 'Object Text', importance: #HIGH } ],
                identification: [ { position: 20, label: 'Object Text' } ],
@@ -41,10 +38,10 @@ define view entity ZC_SUBOBJECT
               lineItem:       [ { position: 40, label: 'Package', importance: #HIGH } ],
               identification: [ { position: 40, label: 'Package' } ],
               selectionField: [ { position: 40 } ] }
-      _Object.PackageObj,      
+      _Object.PackageObj,
       @UI.hidden: true
-      LocalLastChangedAt,
+      LocalLastChangedAt
+      ,
       /* Associations */
-      _Object: redirected to parent ZC_OBJECT
-
+      _Object : redirected to parent ZC_OBJECT1
 }

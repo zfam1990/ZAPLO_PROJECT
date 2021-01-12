@@ -75,9 +75,9 @@ CLASS lhc_Subobject IMPLEMENTATION.
           CATCH cx_bali_objects INTO DATA(lx_exception).
             "WRITE lx_exception->get_text( ).
         ENDTRY.
-        ENDLOOP.
-        ENDIF.
-      ENDMETHOD.
+      ENDLOOP.
+    ENDIF.
+  ENDMETHOD.
 
 
 

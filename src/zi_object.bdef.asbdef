@@ -34,12 +34,18 @@ etag master LocalLastChangedAt
     LocalLastChangedAt = local_last_changed_at;
     LastChangedAt = last_changed_at;
   }
-
+  validation validateObject on save
+  { create; }
   determination CreateApplObject on modify
+  { create; }
+  determination FillObject on modify
+  { create; }
+  determination CreateSubobject on save
   { create; }
 
   draft determine action Prepare
   {
+    validation validateObject;
     determination Subobject ~ AddSubobject;
   }
 
@@ -68,7 +74,6 @@ etag master LocalLastChangedAt
   { create; }
   determination AddSubobject on save
   { create; }
-
 
 
   mapping for ZSUBOBJECT

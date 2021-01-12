@@ -1,0 +1,5 @@
+@EndUserText.label: 'Service definition for Appl Log object'
+define service ZUI_OBJECT1 {
+  expose ZC_OBJECT1 as Object;
+  expose ZC_SUBOBJECT1 as Subobject;
+}

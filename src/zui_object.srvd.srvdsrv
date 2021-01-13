@@ -2,4 +2,5 @@
 define service ZUI_OBJECT {
   expose ZC_OBJECT as Object;
   expose ZC_SUBOBJECT as Subobject;
+  expose ZI_LOGSTATUS;
 }

@@ -13,7 +13,7 @@ etag master LocalLastChangedAt
 
   field ( numbering : managed, readonly ) ObjectUuid;
   field ( mandatory ) Object;
-  field ( mandatory ) TransportRequest;
+  field ( readonly ) TransportRequest;
   field ( mandatory ) PackageObj;
 
   create;
@@ -36,12 +36,15 @@ etag master LocalLastChangedAt
   }
   validation validateObject on save
   { create; }
-  determination CreateApplObject on modify
+  determination SetStatus on modify
   { create; }
   determination FillObject on modify
   { create; }
   determination CreateSubobject on save
   { create; }
+
+  action ( features : instance ) ActivateObject result [1] $self;
+  action ( features : instance ) DeactivateObject result [1] $self;
 
   draft determine action Prepare
   {

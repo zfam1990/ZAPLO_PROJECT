@@ -3,13 +3,10 @@
 {
 "FROM":
 [
-"ZOBJECT"
+"ZLOGSTATUS"
 ],
 "ASSOCIATED":
-[
-"ZI_LOGSTATUS",
-"ZI_SUBOBJECT"
-],
+[],
 "BASE":
 [],
 "ANNO_REF":

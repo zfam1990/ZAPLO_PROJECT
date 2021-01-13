@@ -6,6 +6,10 @@ define behavior for ZC_OBJECT alias Object
   use update;
   use delete;
 
+  use action ActivateObject;
+  use action DeactivateObject;
+
+
   use association _Subobject { create; }
 }
 

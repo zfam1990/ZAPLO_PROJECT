@@ -6,6 +6,7 @@
 define root view ZI_OBJECT
   as select from zobject as Object
   composition [0..*] of ZI_SUBOBJECT as _Subobject
+  association [0..1] to ZI_LOGSTATUS    as _LogStatus   on $projection.LogObjectStatus    = _LogStatus.StatusId
 {
 
   key Object.object_uuid           as ObjectUuid,
@@ -13,6 +14,8 @@ define root view ZI_OBJECT
       Object.object_text           as ObjectText,
       Object.transport_request     as TransportRequest,
       Object.package_obj           as PackageObj,
+      Object.status                as ObjectStatus,
+      Object.log_status            as LogObjectStatus,
       @Semantics.user.createdBy: true
       Object.local_created_by      as LocalCreatedBy,
       @Semantics.systemDateTime.createdAt: true
@@ -25,5 +28,6 @@ define root view ZI_OBJECT
       @Semantics.systemDateTime.lastChangedAt: true
       last_changed_at as LastChangedAt,
 
-      _Subobject // Make association public
+      _Subobject, // Make association public
+      _LogStatus
 }

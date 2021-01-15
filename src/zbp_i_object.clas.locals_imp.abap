@@ -1,8 +1,8 @@
 CLASS lhc_Object DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
-*    METHODS SetStatus FOR DETERMINE ON MODIFY
-*      IMPORTING keys FOR Object~SetStatus.
+    METHODS SetStatus FOR DETERMINE ON MODIFY
+      IMPORTING keys FOR Object~SetStatus.
 
     METHODS FillObject FOR DETERMINE ON MODIFY
       IMPORTING keys FOR Object~FillObject.
@@ -22,11 +22,73 @@ CLASS lhc_Object DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS DeactivateObject FOR MODIFY
       IMPORTING keys FOR ACTION Object~DeactivateObject RESULT result.
 
+    METHODS DefaultStatus FOR MODIFY
+      IMPORTING keys FOR ACTION Object~DefaultStatus.
+
 ENDCLASS.
 
 CLASS lhc_Object IMPLEMENTATION.
 
+  METHOD DefaultStatus.
+
+    DATA lt_modify TYPE TABLE FOR UPDATE  zi_object.
+    DATA ls_modify LIKE LINE OF lt_modify.
+
+    READ ENTITIES OF zi_object IN LOCAL MODE
+        ENTITY Object
+           FIELDS ( LogObjectStatus
+                    Object )
+             WITH CORRESPONDING #( keys )
+          RESULT    DATA(lt_object).
+    IF lt_object IS NOT INITIAL.
+
+      LOOP AT lt_object INTO DATA(ls_object).
+
+
+        DATA(lo_name_filter) = xco_cp_abap_repository=>object_name->get_filter(
+         xco_cp_abap_sql=>constraint->equal( ls_object-Object ) ).
+
+        DATA(lt_objects) = xco_cp_abap_repository=>objects->where( VALUE #(
+             ( lo_name_filter )
+              ) )->in( xco_cp_abap=>repository )->get( ).
+
+        IF lt_objects IS NOT INITIAL.
+
+          ls_modify = VALUE #( %key = ls_object-%key
+                                       LogObjectStatus = '01' ).
+
+        ELSE.
+
+          ls_modify = VALUE #( %key = ls_object-%key
+                                       LogObjectStatus = '02' ).
+
+        ENDIF.
+        APPEND ls_modify TO lt_modify.
+      ENDLOOP.
+
+      MODIFY ENTITIES OF zi_object IN LOCAL MODE
+            ENTITY Object
+              UPDATE FIELDS ( LogObjectStatus )
+              WITH lt_modify
+          REPORTED DATA(lt_reported).
+    ENDIF.
+
+  ENDMETHOD.
+  METHOD SetStatus.
+
+    MODIFY ENTITIES OF zi_object IN LOCAL MODE
+     ENTITY Object
+       EXECUTE DefaultStatus
+       FROM CORRESPONDING #( keys )
+   REPORTED DATA(lt_reported).
+
+    reported = CORRESPONDING #( DEEP lt_reported ).
+
+  ENDMETHOD.
+
   METHOD ActivateObject.
+
+    DATA(lt_keys) = keys.
 
     READ ENTITIES OF zi_object IN LOCAL MODE
           ENTITY Object
@@ -41,11 +103,13 @@ CLASS lhc_Object IMPLEMENTATION.
       DATA(lo_log_object) = cl_bali_object_handler=>get_instance( ).
 
       LOOP AT lt_object INTO DATA(ls_object).
+        DATA(ls_keys) = lt_keys[ %tky = ls_object-%tky ].
+        DATA(lv_transport) = ls_keys-%param-transport_request.
         TRY.
             lo_log_object->create_object( EXPORTING iv_object = ls_object-Object
                                                     iv_object_text = ls_object-ObjectText
                                                     iv_package = ls_object-PackageObj
-                                                    iv_transport_request = ls_object-TransportRequest ).
+                                                    iv_transport_request = lv_transport ).
           CATCH cx_bali_objects INTO DATA(lx_exception).
             "WRITE lx_exception->get_text( ).
         ENDTRY.
@@ -57,7 +121,9 @@ CLASS lhc_Object IMPLEMENTATION.
         UPDATE FROM VALUE #(
           FOR key IN keys ( %tky = key-%tky
                             LogObjectStatus = '01'
-                            %control-LogObjectStatus = if_abap_behv=>mk-on ) )
+                            TransportRequest = lv_transport
+                            %control-LogObjectStatus = if_abap_behv=>mk-on
+                            %control-TransportRequest = if_abap_behv=>mk-on ) )
            FAILED   failed
            REPORTED reported.
 
@@ -68,7 +134,7 @@ CLASS lhc_Object IMPLEMENTATION.
           FOR key IN keys (  %tky = key-%tky
                              %control = VALUE #(
                              Object = if_abap_behv=>mk-on
-                             ObjectStatus = if_abap_behv=>mk-on
+                             LogObjectStatus = if_abap_behv=>mk-on
                              ObjectText = if_abap_behv=>mk-on
                              PackageObj = if_abap_behv=>mk-on
                              TransportRequest = if_abap_behv=>mk-on ) ) )
@@ -81,6 +147,8 @@ CLASS lhc_Object IMPLEMENTATION.
 
   METHOD DeactivateObject.
 
+    DATA(lt_keys) = keys.
+
     READ ENTITIES OF zi_object IN LOCAL MODE
               ENTITY Object
                 FIELDS ( Object
@@ -92,9 +160,13 @@ CLASS lhc_Object IMPLEMENTATION.
       DATA(lo_log_object) = cl_bali_object_handler=>get_instance( ).
 
       LOOP AT lt_object INTO DATA(ls_object).
+
+        DATA(ls_keys) = lt_keys[ %tky = ls_object-%tky ].
+        DATA(lv_transport) = ls_keys-%param-transport_request.
+
         TRY.
             lo_log_object->delete_object( EXPORTING iv_object = ls_object-Object
-                                            iv_transport_request = ls_object-TransportRequest ).
+                                            iv_transport_request = lv_transport ).
           CATCH cx_bali_objects INTO DATA(lx_exception).
             "WRITE lx_exception->get_text( ).
         ENDTRY.
@@ -106,7 +178,9 @@ CLASS lhc_Object IMPLEMENTATION.
         UPDATE FROM VALUE #(
           FOR key IN keys ( %tky = key-%tky
                             LogObjectStatus = '02'
-                            %control-LogObjectStatus = if_abap_behv=>mk-on ) )
+                            TransportRequest = lv_transport
+                            %control-LogObjectStatus = if_abap_behv=>mk-on
+                            %control-TransportRequest = if_abap_behv=>mk-on ) )
            FAILED   failed
            REPORTED reported.
 
@@ -117,7 +191,7 @@ CLASS lhc_Object IMPLEMENTATION.
           FOR key IN keys (  %tky = key-%tky
                              %control = VALUE #(
                              Object = if_abap_behv=>mk-on
-                             ObjectStatus = if_abap_behv=>mk-on
+                             LogObjectStatus = if_abap_behv=>mk-on
                              ObjectText = if_abap_behv=>mk-on
                              PackageObj = if_abap_behv=>mk-on
                              TransportRequest = if_abap_behv=>mk-on ) ) )
@@ -226,75 +300,71 @@ CLASS lhc_Object IMPLEMENTATION.
                   WITH CORRESPONDING #( keys )
                 RESULT DATA(lt_object).
 
-    DATA(lo_log_object) = cl_bali_object_handler=>get_instance( ).
-    LOOP AT lt_object INTO DATA(ls_object).
+    IF lt_object IS NOT INITIAL.
 
-      DATA(lv_object) = ls_object-Object.
+      DATA(lo_log_object) = cl_bali_object_handler=>get_instance( ).
+      LOOP AT lt_object INTO DATA(ls_object).
 
-      TRY.
-          lo_log_object->read_object(
-          EXPORTING
-          iv_object = lv_object
-          IMPORTING
-          ev_object_text = DATA(lv_object_text)
-          et_subobjects = DATA(lt_subobjects) ).
+        DATA(lv_object) = ls_object-Object.
 
-        CATCH cx_bali_objects INTO DATA(lx_exception).
-      ENDTRY.
-      IF lt_subobjects IS NOT INITIAL.
-        ls_modify = VALUE #( %key = ls_object-%key
-                          %target = VALUE #( FOR ls_subobjects IN lt_subobjects
-                          ( %data-Subobject = ls_subobjects-subobject
-                          %data-SubobjectText = ls_subobjects-subobject_text ) ) ).
+        TRY.
+            lo_log_object->read_object(
+            EXPORTING
+            iv_object = lv_object
+            IMPORTING
+            ev_object_text = DATA(lv_object_text)
+            et_subobjects = DATA(lt_subobjects) ).
 
-        APPEND ls_modify TO lt_modify.
-      ENDIF.
-    ENDLOOP.
+          CATCH cx_bali_objects INTO DATA(lx_exception).
+        ENDTRY.
+        IF lt_subobjects IS NOT INITIAL.
+          ls_modify = VALUE #( %key = ls_object-%key
+                            %target = VALUE #( FOR ls_subobjects IN lt_subobjects
+                            ( %data-Subobject = ls_subobjects-subobject
+                            %data-SubobjectText = ls_subobjects-subobject_text
+                            %data-LogObjectStatus = '01') ) ).
 
-    MODIFY ENTITIES OF zi_object IN LOCAL MODE
-      ENTITY Object
-        CREATE BY \_Subobject
-        FIELDS ( Subobject
-                 SubobjectText )
-        WITH lt_modify
-    REPORTED DATA(lt_reported).
+          APPEND ls_modify TO lt_modify.
+        ENDIF.
+      ENDLOOP.
 
+      MODIFY ENTITIES OF zi_object IN LOCAL MODE
+        ENTITY Object
+          CREATE BY \_Subobject
+          FIELDS ( Subobject
+                   SubobjectText
+                   LogObjectStatus )
+          WITH lt_modify
+      REPORTED DATA(lt_reported).
+    ENDIF.
   ENDMETHOD.
 
 
   METHOD get_features.
     READ ENTITIES OF zi_object IN LOCAL MODE
     ENTITY Object
-       FIELDS ( LogObjectStatus Object )
+       FIELDS ( LogObjectStatus )
          WITH CORRESPONDING #( keys )
       RESULT    DATA(lt_object).
+    IF lt_object IS NOT INITIAL.
 
-    DATA(lo_log_object) = cl_bali_object_handler=>get_instance( ).
-    LOOP AT lt_object INTO DATA(ls_object).
+      LOOP AT lt_object INTO DATA(ls_object).
 
-      DATA(lv_object) = ls_object-Object.
+        DATA ls_result LIKE LINE OF result.
 
-      TRY.
-          lo_log_object->read_object(
-          EXPORTING
-          iv_object = lv_object
-          IMPORTING
-          ev_object_text = DATA(lv_object_text)
-          et_subobjects = DATA(lt_subobjects) ).
+        ls_result = VALUE #(
+                                    %tky                   = ls_object-%tky
 
-        CATCH cx_bali_objects INTO DATA(lx_exception).
-      ENDTRY.
-
-
-      result = VALUE #( (
-                          %tky                   = ls_object-%tky
-
-                           %features-%action-ActivateObject = COND #( WHEN ( lv_object_text IS NOT INITIAL )
-                                                                      THEN if_abap_behv=>fc-o-disabled ELSE if_abap_behv=>fc-o-enabled   )
-                           %features-%action-DeactivateObject = COND #( WHEN ( lv_object_text IS INITIAL )
-                                                                      THEN if_abap_behv=>fc-o-disabled ELSE if_abap_behv=>fc-o-enabled  )
-                       ) ).
-    ENDLOOP.
+                                     %features-%action-ActivateObject = COND #( WHEN ls_object-LogObjectStatus = '01'
+                                                                                THEN if_abap_behv=>fc-o-disabled ELSE if_abap_behv=>fc-o-enabled   )
+                                     %features-%action-DeactivateObject = COND #( WHEN ls_object-LogObjectStatus = '02'
+                                                                                THEN if_abap_behv=>fc-o-disabled ELSE if_abap_behv=>fc-o-enabled  )
+                                     %features-%delete = COND #( WHEN ls_object-LogObjectStatus = '01'
+                                                                                THEN if_abap_behv=>fc-o-disabled ELSE if_abap_behv=>fc-o-enabled  )
+                                  ).
+        APPEND ls_result TO result.
+      ENDLOOP.
+    ENDIF.
   ENDMETHOD.
 
 

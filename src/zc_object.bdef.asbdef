@@ -18,5 +18,8 @@ define behavior for ZC_SUBOBJECT alias Subobject
   use update;
   use delete;
 
+  use action ActivateObject1;
+  use action DeactivateObject1;
+
   use association _Object;
 }

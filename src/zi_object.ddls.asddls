@@ -14,7 +14,7 @@ define root view ZI_OBJECT
       Object.object_text           as ObjectText,
       Object.transport_request     as TransportRequest,
       Object.package_obj           as PackageObj,
-      Object.status                as ObjectStatus,
+
       Object.log_status            as LogObjectStatus,
       @Semantics.user.createdBy: true
       Object.local_created_by      as LocalCreatedBy,
@@ -27,6 +27,9 @@ define root view ZI_OBJECT
       
       @Semantics.systemDateTime.lastChangedAt: true
       last_changed_at as LastChangedAt,
+      case when Object.log_status  = '01' then 1
+      when Object.log_status  = '02' then 3
+      else 0 end as criticality,
 
       _Subobject, // Make association public
       _LogStatus

@@ -15,10 +15,11 @@ etag master LocalLastChangedAt
   field ( mandatory ) Object;
   field ( readonly ) TransportRequest;
   field ( mandatory ) PackageObj;
+  field ( readonly ) LogObjectStatus;
 
   create;
   update;
-  delete;
+  delete ( features : instance );
 
 
   mapping for ZOBJECT
@@ -33,6 +34,7 @@ etag master LocalLastChangedAt
     LocalLastChangedBy = local_last_changed_by;
     LocalLastChangedAt = local_last_changed_at;
     LastChangedAt = last_changed_at;
+    LogObjectStatus = log_status;
   }
   validation validateObject on save
   { create; }
@@ -43,13 +45,14 @@ etag master LocalLastChangedAt
   determination CreateSubobject on save
   { create; }
 
-  action ( features : instance ) ActivateObject result [1] $self;
-  action ( features : instance ) DeactivateObject result [1] $self;
+  action ( features : instance ) ActivateObject parameter ZA_TRANSPORT result [1] $self;
+  action ( features : instance ) DeactivateObject parameter ZA_TRANSPORT result [1] $self;
+  internal action DefaultStatus;
 
   draft determine action Prepare
   {
     validation validateObject;
-    determination Subobject ~ AddSubobject;
+    //    determination Subobject ~ AddSubobject;
   }
 
   association _Subobject { create; with draft; }
@@ -67,17 +70,23 @@ etag master LocalLastChangedAt
   field ( numbering : managed, readonly ) SubobjectUuid;
   field ( readonly ) ObjectUuid;
   field ( mandatory ) Subobject;
-  field ( mandatory ) TransportRequest;
+  field ( readonly ) TransportRequest;
+  field ( readonly ) LogObjectStatus;
 
 
   update;
-  delete;
+  delete ( features : instance );
 
   determination FillRequest on modify
   { create; }
-  determination AddSubobject on save
+  determination SetStatus on modify
   { create; }
+  //  determination AddSubobject on save
+  //  { create; }
 
+  action ( features : instance ) ActivateObject1 parameter ZA_TRANSPORT result [1] $self;
+  action ( features : instance ) DeactivateObject1 parameter ZA_TRANSPORT result [1] $self;
+  internal action DefaultStatus;
 
   mapping for ZSUBOBJECT
   {
@@ -87,7 +96,7 @@ etag master LocalLastChangedAt
     SubobjectText = subobject_text;
     TransportRequest = transport_request;
     LocalLastChangedAt = local_last_changed_at;
-
+    LogObjectStatus = log_status;
   }
   association _Object { with draft; }
 

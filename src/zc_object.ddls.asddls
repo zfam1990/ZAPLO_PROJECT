@@ -33,46 +33,38 @@ define root view entity ZC_OBJECT
       additionalBinding: [{ localElement: 'PackageObj', element: 'package_obj', usage: #RESULT },
       { localElement: 'ObjectText', element: 'object_text', usage: #RESULT },
       { localElement: 'Object', element: 'object', usage: #RESULT }]}]
-      @Search.defaultSearchElement: true
-      @Search.fuzzinessThreshold: 0.7
       @EndUserText: { quickInfo: 'Log Object Name' }
       Object,
       @UI: {
                lineItem:       [ { position: 20,label: 'Object Text', importance: #HIGH } ],
-               identification: [ { position: 20, label: 'Object Text' } ],
-               selectionField: [ { position: 20 } ] }
-      @Search.defaultSearchElement: true
-      @Search.fuzzinessThreshold: 0.7 
+               identification: [ { position: 20, label: 'Object Text' } ]}
       @EndUserText: { quickInfo: 'Log Object Description' }        
       ObjectText,
       @UI: {
              lineItem:       [ { position: 30, label: 'Transport Request', importance: #HIGH } ],
-             identification: [ { position: 30, label: 'Transport Request' } ],
-             selectionField: [ { position: 30 } ] }
-      @Search.defaultSearchElement: true
-      @Search.fuzzinessThreshold: 0.7    
+             identification: [ { position: 30, label: 'Transport Request' } ]}
       @EndUserText: { quickInfo: 'Log Object Transport Request' }   
       TransportRequest,
       @UI: {
               lineItem:       [ { position: 40, label: 'Package', importance: #HIGH },
-              { type: #FOR_ACTION, dataAction: 'DeactivateObject', label: 'Deactivate' } ],
-              identification: [ { position: 40, label: 'Package' } ],
-              selectionField: [ { position: 40 } ] }
-      @Search.defaultSearchElement: true
-      @Search.fuzzinessThreshold: 0.7    
+              { type: #FOR_ACTION, dataAction: 'DeactivateObject1', label: 'Deactivate' } ],
+              identification: [ { position: 40, label: 'Package' },
+              { type: #FOR_ACTION, dataAction: 'DeactivateObject1', label: 'Deactivate' } ]}   
       @EndUserText: { quickInfo: 'Log Object Package' }    
       PackageObj,
       @UI: {
-              lineItem:       [ { position: 50, label: 'Status', importance: #HIGH },
+              lineItem:       [ { position: 50, criticality: 'criticality', criticalityRepresentation: #WITH_ICON, label: 'Status', importance: #HIGH },
               { type: #FOR_ACTION, dataAction: 'ActivateObject', label: 'Activate' } ],
-              identification: [ { position: 50, label: 'Status' } ],
-              selectionField: [ { position: 50 } ] }     
+              identification: [ { position: 50, label: 'Status' },
+              { type: #FOR_ACTION, dataAction: 'ActivateObject', label: 'Activate' } ]}   
       @ObjectModel.text.element: ['StatusName'] 
       @Search.defaultSearchElement: true
       @Search.fuzzinessThreshold: 0.7
       @EndUserText: { quickInfo: 'Log Object Status' }
       LogObjectStatus,
       _LogStatus.StatusName as StatusName,
+      @UI.hidden: true
+      criticality,
       
       @UI.hidden: true
       LocalLastChangedAt

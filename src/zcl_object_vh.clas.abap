@@ -44,6 +44,7 @@ CLASS zcl_object_vh IMPLEMENTATION.
 
       SELECT DISTINCT *
       FROM zi_vh_object
+      where ABAPObjectIsDeleted <> 'X'
       INTO TABLE @DATA(lt_vh).
 
       LOOP AT lt_vh INTO DATA(ls_vh).
